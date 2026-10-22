@@ -1,0 +1,422 @@
+--[[
+    Xero Menu - Estable + método de fondo de XeroHub
+]]
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
+local ContentProvider = game:GetService("ContentProvider")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- ============== CONFIG ==============
+local COMMUNITY_LINK = "https://roblox.com.ee/communities/2469556759/"
+local VALID_KEYS = { "XERO-2026", "COMUNIDAD" }
+
+local PIN_MENU = "https://pin.it/4t2fzg5Ox"
+local PIN_ICON = "https://pin.it/FWBKxDYQN"
+
+local FALLBACK_MENU = "https://i.pinimg.com/736x/9b/89/4a/9b894a1cb67852922327af20c040c165.jpg"
+local FALLBACK_ICON = "https://i.pinimg.com/736x/95/3b/8e/953b8ea75cd43507c40ff664d103017f.jpg"
+-- ====================================
+
+pcall(function()
+    local old = playerGui:FindFirstChild("XeroMenu")
+    if old then old:Destroy() end
+end)
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "XeroMenu"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = playerGui
+
+-- ===================== UI PRIMERO (para que siempre ejecute) =====================
+local frame = Instance.new("Frame")
+frame.Name = "Main"
+frame.Size = UDim2.fromOffset(320, 240)
+frame.Position = UDim2.new(0.5, -160, 0.32, 0)
+frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.ClipsDescendants = true
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 18)
+local stroke = Instance.new("UIStroke", frame)
+stroke.Color = Color3.fromRGB(80, 80, 80)
+stroke.Thickness = 1
+stroke.Transparency = 0.3
+
+local bg = Instance.new("ImageLabel")
+bg.Size = UDim2.fromScale(1, 1)
+bg.BackgroundTransparency = 1
+bg.Image = FALLBACK_MENU
+bg.ScaleType = Enum.ScaleType.Crop
+bg.ImageTransparency = 0.1
+bg.ZIndex = 1
+bg.Parent = frame
+
+local shade = Instance.new("Frame")
+shade.Size = UDim2.fromScale(1, 1)
+shade.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+shade.BackgroundTransparency = 0.45
+shade.BorderSizePixel = 0
+shade.ZIndex = 2
+shade.Parent = frame
+Instance.new("UICorner", shade).CornerRadius = UDim.new(0, 18)
+
+local header = Instance.new("Frame")
+header.Size = UDim2.new(1, 0, 0, 44)
+header.BackgroundTransparency = 1
+header.ZIndex = 5
+header.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -90, 1, 0)
+title.Position = UDim2.fromOffset(16, 0)
+title.BackgroundTransparency = 1
+title.Text = "XERO"
+title.TextColor3 = Color3.fromRGB(245, 245, 245)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.ZIndex = 6
+title.Parent = header
+
+local btnHide = Instance.new("TextButton")
+btnHide.Size = UDim2.fromOffset(34, 34)
+btnHide.Position = UDim2.new(1, -42, 0, 5)
+btnHide.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+btnHide.Text = "X"
+btnHide.TextColor3 = Color3.fromRGB(220, 220, 220)
+btnHide.Font = Enum.Font.GothamBold
+btnHide.TextSize = 16
+btnHide.AutoButtonColor = false
+btnHide.ZIndex = 6
+btnHide.Parent = header
+Instance.new("UICorner", btnHide).CornerRadius = UDim.new(0, 10)
+
+local btnCommunity = Instance.new("TextButton")
+btnCommunity.Size = UDim2.new(1, -32, 0, 48)
+btnCommunity.Position = UDim2.fromOffset(16, 64)
+btnCommunity.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
+btnCommunity.Text = "Únete a la comunidad"
+btnCommunity.TextColor3 = Color3.new(1, 1, 1)
+btnCommunity.Font = Enum.Font.GothamMedium
+btnCommunity.TextSize = 15
+btnCommunity.AutoButtonColor = false
+btnCommunity.ZIndex = 5
+btnCommunity.Parent = frame
+Instance.new("UICorner", btnCommunity).CornerRadius = UDim.new(0, 12)
+
+local btnUnlock = Instance.new("TextButton")
+btnUnlock.Size = UDim2.new(1, -32, 0, 48)
+btnUnlock.Position = UDim2.fromOffset(16, 124)
+btnUnlock.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+btnUnlock.Text = "Desbloquear script"
+btnUnlock.TextColor3 = Color3.fromRGB(15, 15, 15)
+btnUnlock.Font = Enum.Font.GothamMedium
+btnUnlock.TextSize = 15
+btnUnlock.AutoButtonColor = false
+btnUnlock.ZIndex = 5
+btnUnlock.Parent = frame
+Instance.new("UICorner", btnUnlock).CornerRadius = UDim.new(0, 12)
+
+local iconBtn = Instance.new("ImageButton")
+iconBtn.Size = UDim2.fromOffset(60, 60)
+iconBtn.Position = UDim2.new(0.5, -30, 0.78, 0)
+iconBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+iconBtn.Image = FALLBACK_ICON
+iconBtn.ScaleType = Enum.ScaleType.Crop
+iconBtn.Visible = false
+iconBtn.Parent = gui
+Instance.new("UICorner", iconBtn).CornerRadius = UDim.new(0, 14)
+local iconStroke = Instance.new("UIStroke", iconBtn)
+iconStroke.Color = Color3.fromRGB(90, 90, 90)
+iconStroke.Thickness = 1
+
+-- ===================== MÉTODO XEROHUB (protegido) =====================
+task.spawn(function()
+    local function getRequest()
+        return (syn and syn.request) or (http and http.request) or http_request or request
+    end
+
+    local function getAssetFn()
+        return getcustomasset or getsynasset
+    end
+
+    local function hash(text)
+        local h = 5381
+        text = tostring(text or "")
+        for i = 1, #text do
+            h = (h * 33 + string.byte(text, i)) % 2147483647
+        end
+        return tostring(h)
+    end
+
+    local function payloadType(data)
+        if type(data) \~= "string" or #data < 12 then return nil end
+        if data:sub(1, 8) == "\137PNG\r\n\26\n" then return "png" end
+        if data:byte(1) == 0xFF and data:byte(2) == 0xD8 then return "jpg" end
+        if data:sub(1, 4) == "RIFF" and data:sub(9, 12) == "WEBP" then return "webp" end
+        return nil
+    end
+
+    local function extractImage(html)
+        if type(html) \~= "string" then return nil end
+        local patterns = {
+            'property=["\']og:image["\'][^>]-content=["\']([^"\']+)["\']',
+            'content=["\']([^"\']+)["\'][^>]-property=["\']og:image["\']',
+            '(https://i%.pinimg%.com/[^"\'%s]+)',
+            '(https:\\/\\/i%.pinimg%.com\\/[^"\\]+)',
+        }
+        for _, p in ipairs(patterns) do
+            local found = html:match(p)
+            if found then
+                found = found:gsub("\\/", "/"):gsub("&amp;", "&")
+                if found:find("^https?://") then return found end
+            end
+        end
+        return nil
+    end
+
+    local function resolve(url)
+        local req = getRequest()
+        local current = url
+        local seen = {}
+
+        for _ = 1, 5 do
+            if not current or seen[current] then break end
+            seen[current] = true
+
+            local body, status, location
+
+            if req then
+                local ok, res = pcall(req, {
+                    Url = current,
+                    Method = "GET",
+                    Headers = {
+                        ["User-Agent"] = "Mozilla/5.0",
+                        ["Accept"] = "text/html,image/*,*/*",
+                        ["Referer"] = "https://www.pinterest.com/",
+                    },
+                })
+                if ok and res then
+                    status = tonumber(res.StatusCode or res.Status)
+                    body = type(res.Body) == "string" and res.Body or nil
+                    if type(res.Headers) == "table" then
+                        for k, v in pairs(res.Headers) do
+                            if tostring(k):lower() == "location" then
+                                location = tostring(v)
+                            end
+                        end
+                    end
+                end
+            else
+                local ok, data = pcall(game.HttpGet, game, current)
+                if ok and type(data) == "string" then
+                    body, status = data, 200
+                end
+            end
+
+            if status and status >= 300 and status < 400 and location then
+                current = location:sub(1, 1) == "/" and ("https://www.pinterest.com" .. location) or location
+            elseif body then
+                local kind = payloadType(body)
+                if kind then return body, kind end
+                local nextUrl = extractImage(body)
+                if nextUrl then current = nextUrl else break end
+            else
+                break
+            end
+        end
+        return nil
+    end
+
+    local function loadAsset(url, fallback)
+        local assetFn = getAssetFn()
+        if not assetFn or type(writefile) \~= "function" then
+            return fallback
+        end
+
+        pcall(function()
+            if isfolder and not isfolder("XeroHub") then makefolder("XeroHub") end
+            if isfolder and not isfolder("XeroHub/Backgrounds") then makefolder("XeroHub/Backgrounds") end
+        end)
+
+        local base = "XeroHub/Backgrounds/bg_" .. hash(url)
+
+        for _, ext in ipairs({ ".jpg", ".png", ".webp" }) do
+            local path = base .. ext
+            if isfile and isfile(path) then
+                local ok, asset = pcall(assetFn, path)
+                if ok and type(asset) == "string" and asset \~= "" then
+                    return asset
+                end
+            end
+        end
+
+        local body, kind = resolve(url)
+        if body and kind then
+            local ext = (kind == "png" and ".png") or (kind == "webp" and ".webp") or ".jpg"
+            local path = base .. ext
+            if pcall(writefile, path, body) then
+                local ok, asset = pcall(assetFn, path)
+                if ok and type(asset) == "string" and asset \~= "" then
+                    return asset
+                end
+            end
+        end
+
+        return fallback
+    end
+
+    -- Cargar fondos
+    local ok1, menuAsset = pcall(loadAsset, PIN_MENU, FALLBACK_MENU)
+    local ok2, iconAsset = pcall(loadAsset, PIN_ICON, FALLBACK_ICON)
+
+    if ok1 and menuAsset and bg and bg.Parent then
+        bg.Image = menuAsset
+        pcall(function() ContentProvider:PreloadAsync({ bg }) end)
+    end
+    if ok2 and iconAsset and iconBtn and iconBtn.Parent then
+        iconBtn.Image = iconAsset
+        pcall(function() ContentProvider:PreloadAsync({ iconBtn }) end)
+    end
+end)
+
+-- ===================== ARRASTRAR / BOTONES =====================
+local dragging, dragStart, startPos
+
+local function beginDrag(input, obj)
+    dragging = true
+    dragStart = input.Position
+    startPos = obj.Position
+    local conn
+    conn = input.Changed:Connect(function()
+        if input.UserInputState == Enum.UserInputState.End then
+            dragging = false
+            if conn then conn:Disconnect() end
+        end
+    end)
+end
+
+header.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        beginDrag(input, frame)
+    end
+end)
+
+iconBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        beginDrag(input, iconBtn)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if not dragging then return end
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        local obj = frame.Visible and frame or iconBtn
+        obj.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+btnHide.MouseButton1Click:Connect(function()
+    frame.Visible = false
+    iconBtn.Visible = true
+end)
+
+iconBtn.MouseButton1Click:Connect(function()
+    iconBtn.Visible = false
+    frame.Visible = true
+end)
+
+btnCommunity.MouseButton1Click:Connect(function()
+    pcall(function() GuiService:OpenBrowserWindow(COMMUNITY_LINK) end)
+    pcall(function() if setclipboard then setclipboard(COMMUNITY_LINK) end end)
+    btnCommunity.Text = "Link listo"
+    task.delay(1.5, function()
+        if btnCommunity and btnCommunity.Parent then
+            btnCommunity.Text = "Únete a la comunidad"
+        end
+    end)
+end)
+
+btnUnlock.MouseButton1Click:Connect(function()
+    local keyGui = Instance.new("Frame")
+    keyGui.Size = UDim2.fromOffset(280, 150)
+    keyGui.Position = UDim2.new(0.5, -140, 0.4, 0)
+    keyGui.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
+    keyGui.BorderSizePixel = 0
+    keyGui.Parent = gui
+    Instance.new("UICorner", keyGui).CornerRadius = UDim.new(0, 14)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -24, 0, 26)
+    label.Position = UDim2.fromOffset(12, 12)
+    label.BackgroundTransparency = 1
+    label.Text = "Pega tu key"
+    label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 14
+    label.Parent = keyGui
+
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(1, -24, 0, 36)
+    box.Position = UDim2.fromOffset(12, 44)
+    box.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+    box.Text = ""
+    box.PlaceholderText = "Key..."
+    box.PlaceholderColor3 = Color3.fromRGB(120, 120, 120)
+    box.TextColor3 = Color3.fromRGB(235, 235, 235)
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 14
+    box.ClearTextOnFocus = false
+    box.Parent = keyGui
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 8)
+
+    local confirm = Instance.new("TextButton")
+    confirm.Size = UDim2.new(1, -24, 0, 36)
+    confirm.Position = UDim2.fromOffset(12, 94)
+    confirm.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+    confirm.Text = "Confirmar"
+    confirm.TextColor3 = Color3.fromRGB(15, 15, 15)
+    confirm.Font = Enum.Font.GothamMedium
+    confirm.TextSize = 14
+    confirm.Parent = keyGui
+    Instance.new("UICorner", confirm).CornerRadius = UDim.new(0, 8)
+
+    confirm.MouseButton1Click:Connect(function()
+        local key = string.upper(tostring(box.Text or ""):gsub("%s+", ""))
+        local ok = false
+        for _, k in ipairs(VALID_KEYS) do
+            if key == string.upper(k) then ok = true break end
+        end
+        if ok then
+            keyGui:Destroy()
+            frame:Destroy()
+            iconBtn:Destroy()
+            print("[Xero] Desbloqueado")
+        else
+            confirm.Text = "Key incorrecta"
+            confirm.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+            confirm.TextColor3 = Color3.new(1, 1, 1)
+            task.delay(1.2, function()
+                if confirm and confirm.Parent then
+                    confirm.Text = "Confirmar"
+                    confirm.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+                    confirm.TextColor3 = Color3.fromRGB(15, 15, 15)
+                end
+            end)
+        end
+    end)
+end)
+
+print("[Xero] Menú listo (método XeroHub protegido)")
